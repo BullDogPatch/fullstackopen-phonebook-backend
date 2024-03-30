@@ -26,6 +26,19 @@ let persons = [
 
 app.use(express.json());
 
+const requestLogger = (request, response, next) => {
+  console.log('Method:', request.method);
+  console.log('Path:  ', request.path);
+  console.log('Body:  ', request.body);
+  console.log('---');
+  next();
+};
+app.use(requestLogger);
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' });
+};
+
 /* display something at root */
 app.get('/', (request, response) => {
   response.send('<h1>Hello, Craig</h1>');
@@ -93,6 +106,8 @@ app.post('/api/persons', (request, response) => {
   persons = [...persons, person];
   response.json(person);
 });
+
+app.use(unknownEndpoint);
 
 const PORT = 3002;
 app.listen(PORT);
