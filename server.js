@@ -91,7 +91,6 @@ app.post('/api/persons', (request, response) => {
   };
 
   persons = [...persons, person];
-  console.log(person);
   response.json(person);
 });
 
