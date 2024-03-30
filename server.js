@@ -71,9 +71,16 @@ const generated = () => {
 /* add a person */
 app.post('/api/persons', (request, response) => {
   const body = request.body;
-  if (!body.name && !body.number) {
+  if (!body.name || !body.number) {
     return response.status(400).json({
-      error: 'details missing',
+      error: 'name or number missing',
+    });
+  }
+
+  const doesExist = persons.find(person => person.name === body.name);
+  if (doesExist) {
+    return response.status(400).json({
+      error: 'name already exists',
     });
   }
 
@@ -83,7 +90,7 @@ app.post('/api/persons', (request, response) => {
     id: generated(),
   };
 
-  persons = persons.concat(person);
+  persons = [...persons, person];
   console.log(person);
   response.json(person);
 });
