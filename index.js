@@ -1,10 +1,10 @@
 const express = require('express');
 const morgan = require('morgan');
+require('dotenv').config();
 const cors = require('cors');
 
 const app = express();
 
-app.use(cors());
 let persons = [
   {
     id: 1,
@@ -27,7 +27,8 @@ let persons = [
     number: '39-23-6423122',
   },
 ];
-
+app.use(express.static('dist'));
+app.use(cors());
 app.use(morgan('tiny'));
 
 morgan.token('postData', (req, res) => JSON.stringify(req.body));
