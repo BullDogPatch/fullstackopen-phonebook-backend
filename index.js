@@ -61,11 +61,16 @@ app.get('/api/persons', (request, response) => {
 
 /* display info page */
 app.get('/api/info', (request, response) => {
-  const personsLength = persons.length;
-  const date = Date();
-  response.send(
-    `<p>Phonebook has info for ${personsLength} people</p><br/><p>${date}</p>`
-  );
+  Person.countDocuments({}, (err, count) => {
+    if (err) {
+      response.status(500).json({ error: 'Internal server error' });
+    } else {
+      const date = new Date().toUTCString();
+      response.send(
+        `<p>Phonebook has info for ${count} people</p><br/><p>${date}</p>`
+      );
+    }
+  });
 });
 
 /* display person by id */
