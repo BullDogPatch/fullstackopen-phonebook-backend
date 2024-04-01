@@ -71,12 +71,13 @@ app.get('/api/info', (request, response) => {
 /* display person by id */
 app.get('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id);
-  const person = persons.find(person => person.id === id);
-  if (person) {
-    response.json(person);
-  } else {
-    response.status(404).end();
-  }
+  Person.findById(id).then(person => {
+    if (person) {
+      response.json(person);
+    } else {
+      response.status(404).end();
+    }
+  });
 });
 
 /* delete person at id */
