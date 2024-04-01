@@ -21,13 +21,22 @@ const PhonebookSchema = {
   number: String,
 };
 
-const Booklet = mongoose.model('Booklet', PhonebookSchema);
+const Person = mongoose.model('Number', PhonebookSchema);
 
-const booklet = new Booklet({
+const person = new Person({
   name: process.argv[3],
   number: process.argv[4],
 });
-booklet.save().then(result => {
-  console.log('booklet saved', result);
+
+if (process.argv.length === 3) {
+  Booklet.find({}).then(result => {
+    result.forEach(item => {
+      console.log(item);
+    });
+  });
+}
+
+person.save().then(result => {
+  console.log(`added ${result.name} to the Phonebook`, result);
   mongoose.connection.close();
 });
