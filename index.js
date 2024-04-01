@@ -85,7 +85,7 @@ app.get('/api/info', async (request, response) => {
 
 /* display person by id */
 app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id);
+  // const id = Number(request.params.id);
   Person.findById(id).then(person => {
     if (person) {
       response.json(person);
