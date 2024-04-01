@@ -60,17 +60,17 @@ app.get('/api/persons', (request, response) => {
 });
 
 /* display info page */
-app.get('/api/info', (request, response) => {
-  Person.countDocuments({}, (err, count) => {
-    if (err) {
-      response.status(500).json({ error: 'Internal server error' });
-    } else {
-      const date = new Date().toUTCString();
-      response.send(
-        `<p>Phonebook has info for ${count} people</p><br/><p>${date}</p>`
-      );
-    }
-  });
+/* display info page */
+app.get('/api/info', async (request, response) => {
+  try {
+    const count = await Person.countDocuments({});
+    const date = new Date().toUTCString();
+    response.send(
+      `<p>Phonebook has info for ${count} people</p><br/><p>${date}</p>`
+    );
+  } catch (error) {
+    response.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 /* display person by id */
