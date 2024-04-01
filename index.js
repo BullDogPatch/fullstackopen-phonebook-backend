@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 require('dotenv').config();
+const Person = require('./models/phonebook');
 const cors = require('cors');
 
 const app = express();
@@ -53,7 +54,9 @@ app.get('/', (request, response) => {
 
 /* display all persons */
 app.get('/api/persons', (request, response) => {
-  response.json(persons);
+  Person.find({}).then(entries => {
+    response.json(entries);
+  });
 });
 
 /* display info page */
@@ -83,10 +86,10 @@ app.delete('/api/persons/:id', (request, response) => {
   response.status(204).end();
 });
 
-const generated = () => {
-  const uniqueId = Math.random().toString(36);
-  return uniqueId;
-};
+// const generated = () => {
+//   const uniqueId = Math.random().toString(36);
+//   return uniqueId;
+// };
 
 /* add a person */
 app.post('/api/persons', (request, response) => {
@@ -104,14 +107,17 @@ app.post('/api/persons', (request, response) => {
     });
   }
 
-  const person = {
+  const person = new Person({
     name: body.name,
     number: body.number,
-    id: generated(),
-  };
+    // id: generated(),
+  });
 
   persons = [...persons, person];
-  response.json(person);
+  person.save().then(savedPerson => {
+    console.log(savedPerson);
+    response.json(person);
+  });
 });
 
 app.use(unknownEndpoint);
