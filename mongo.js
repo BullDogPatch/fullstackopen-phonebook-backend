@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 
-if (process.argv < 3) {
-  console.log('give password as argument');
+if (
+  process.argv.length < 3 ||
+  (process.argv.length > 3 && process.argv.length < 5)
+) {
+  console.log(`USAGE: node mongo.js password name number`);
   process.exit(1);
 }
 
@@ -15,16 +18,15 @@ mongoose.connect(url);
 
 const PhonebookSchema = {
   name: String,
-  number: Number,
+  number: String,
 };
 
 const Booklet = mongoose.model('Booklet', PhonebookSchema);
 
 const booklet = new Booklet({
-  name: 'Craig Clayton',
-  number: 30303030,
+  name: process.argv[3],
+  number: process.argv[4],
 });
-
 booklet.save().then(result => {
   console.log('booklet saved', result);
   mongoose.connection.close();
