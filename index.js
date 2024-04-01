@@ -85,14 +85,19 @@ app.get('/api/info', async (request, response) => {
 
 /* display person by id */
 app.get('/api/persons/:id', (request, response) => {
-  // const id = Number(request.params.id);
-  Person.findById(id).then(person => {
-    if (person) {
-      response.json(person);
-    } else {
-      response.status(404).end();
-    }
-  });
+  const id = request.params.id;
+  Person.findById(id)
+    .then(person => {
+      if (person) {
+        response.json(person);
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch(error => {
+      console.error(error); // Log any errors
+      response.status(500).json({ error: 'Internal server error' }); // Send a generic error response
+    });
 });
 
 /* delete person at id */
