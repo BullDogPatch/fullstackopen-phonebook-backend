@@ -43,6 +43,16 @@ app.use(
 
 app.use(express.json());
 
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' });
+  }
+
+  next(error);
+};
+
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' });
 };
@@ -130,8 +140,9 @@ app.post('/api/persons', (request, response) => {
 });
 
 app.use(unknownEndpoint);
+app.use(errorHandler);
 
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 8080; // Use the port defined in .env or default to 8080
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
