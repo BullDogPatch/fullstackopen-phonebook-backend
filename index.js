@@ -113,10 +113,9 @@ app.post('/api/persons', (request, response) => {
     // id: generated(),
   });
 
-  persons = [...persons, person];
   person.save().then(savedPerson => {
     console.log(savedPerson);
-    response.json(person);
+    response.json(savedPerson);
   });
 });
 
