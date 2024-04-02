@@ -6,41 +6,9 @@ const cors = require('cors');
 
 const app = express();
 
-let persons = [
-  {
-    id: 1,
-    name: 'Arto Hellas',
-    number: '040-123456',
-  },
-  {
-    id: 2,
-    name: 'Ada Lovelace',
-    number: '39-44-5323523',
-  },
-  {
-    id: 3,
-    name: 'Dan Abramov',
-    number: '12-43-234345',
-  },
-  {
-    id: 4,
-    name: 'Mary Poppendieck',
-    number: '39-23-6423122',
-  },
-];
 app.use(express.static('dist'));
 app.use(cors());
 app.use(morgan('tiny'));
-
-morgan.token('postData', (req, res) => JSON.stringify(req.body));
-
-// Use Morgan middleware with custom format
-app.use(
-  morgan(
-    ':method :url :status :res[content-length] - :response-time ms :postData'
-  )
-);
-
 app.use(express.json());
 
 const errorHandler = (error, request, response, next) => {
@@ -48,6 +16,8 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' });
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message });
   }
 
   next(error);
@@ -57,20 +27,16 @@ const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' });
 };
 
-/* display something at root */
 app.get('/', (request, response) => {
   response.send('<h1>Hello, Craig</h1>');
 });
 
-/* display all persons */
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(entries => {
     response.json(entries);
   });
 });
 
-/* display info page */
-/* display info page */
 app.get('/api/info', async (request, response) => {
   try {
     const count = await Person.countDocuments({});
@@ -83,7 +49,6 @@ app.get('/api/info', async (request, response) => {
   }
 });
 
-/* display person by id */
 app.get('/api/persons/:id', (request, response) => {
   const id = request.params.id;
   Person.findById(id)
@@ -95,17 +60,12 @@ app.get('/api/persons/:id', (request, response) => {
       }
     })
     .catch(error => {
-      console.error(error); // Log any errors
-      response.status(500).json({ error: 'Internal server error' }); // Send a generic error response
+      console.error(error);
+      response.status(500).json({ error: 'Internal server error' });
     });
 });
 
-/* delete person at id */
 app.delete('/api/persons/:id', (request, response) => {
-  // const id = Number(request.params.id);
-  // persons = persons.filter(person => person.id !== id);
-  // response.status(204).end();
-
   Person.findByIdAndDelete(request.params.id).then(() => {
     response.status(204).end();
   });
@@ -113,7 +73,6 @@ app.delete('/api/persons/:id', (request, response) => {
 
 app.put('/api/persons/:id', (request, response, next) => {
   const body = request.body;
-
   const person = {
     name: body.name,
     number: body.number,
@@ -126,37 +85,36 @@ app.put('/api/persons/:id', (request, response, next) => {
     .catch(error => next(error));
 });
 
-app.post('/api/persons', (request, response) => {
-  const body = request.body;
-  if (!body.name || !body.number) {
+app.post('/api/persons', (request, response, next) => {
+  const { name, number } = request.body;
+
+  // Check if name or number is missing
+  if (!name || !number) {
     return response.status(400).json({
       error: 'name or number missing',
     });
   }
 
-  const doesExist = persons.find(person => person.name === body.name);
-  if (doesExist) {
-    return response.status(400).json({
-      error: 'name already exists',
-    });
-  }
-
+  // Create a new person object
   const person = new Person({
-    name: body.name,
-    number: body.number,
-    // id: generated(),
+    name: name,
+    number: number,
   });
 
-  person.save().then(savedPerson => {
-    console.log(savedPerson);
-    response.json(savedPerson);
-  });
+  // Save the new person to the database
+  person
+    .save()
+    .then(savedPerson => {
+      console.log(savedPerson);
+      response.json(savedPerson);
+    })
+    .catch(error => next(error));
 });
 
 app.use(unknownEndpoint);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 8080; // Use the port defined in .env or default to 8080
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
