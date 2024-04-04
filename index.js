@@ -83,6 +83,13 @@ app.post('/api/persons', (request, response, next) => {
     });
   }
 
+  // Check if the phone number is at least 8 characters long
+  if (number.length < 8) {
+    return response.status(400).json({
+      error: 'invalid phone number: must be at least 8 characters long',
+    });
+  }
+
   // Create a new person object
   const person = new Person({
     name: name,
@@ -96,7 +103,15 @@ app.post('/api/persons', (request, response, next) => {
       console.log(savedPerson);
       response.json(savedPerson);
     })
-    .catch(error => next(error));
+    .catch(error => {
+      if (error.name === 'ValidationError') {
+        // Mongoose validation error
+        return response.status(400).json({ error: error.message });
+      } else {
+        // Other types of errors
+        return next(error);
+      }
+    });
 });
 
 app.use(unknownEndpoint);
