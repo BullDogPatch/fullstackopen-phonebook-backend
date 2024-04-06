@@ -22,7 +22,6 @@ module.exports = {
     ecmaVersion: 'latest',
   },
 
-  rules: {},
   plugins: ['@stylistic/js'],
   extends: 'eslint:recommended',
   rules: {
