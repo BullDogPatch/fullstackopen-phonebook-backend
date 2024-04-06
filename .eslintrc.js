@@ -6,7 +6,6 @@ module.exports = {
     node: true,
   },
 
-  extends: 'eslint:recommended',
   overrides: [
     {
       env: {
